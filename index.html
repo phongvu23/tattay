@@ -1,11 +1,9 @@
-# tattay
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MD5 to Dice Roller - Provably Fair</title>
-    <!-- Nhúng thư viện Bootstrap để giao diện đẹp mắt -->
     <link href="https://jsdelivr.net" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -22,21 +20,20 @@
         <div class="col-md-8 text-center">
             <h2 class="mb-4 text-primary" id="webTitle">Bộ Chuyển Đổi MD5 Thành Xúc Xắc ⚄</h2>
             
-            <!-- Khối nhập liệu (Sẽ biến mất sau khi dán mã) -->
+            <!-- Khối nhập liệu (Sẽ tự động biến mất) -->
             <div class="card p-4 bg-white mb-4" id="inputCard">
                 <div class="mb-3 text-start">
-                    <label for="inputHash" class="form-label fw-bold">Dán mã MD5 vào đây để xem kết quả:</label>
-                    <!-- Sức mạnh ở đây: Bắt sự kiện onpaste để tự động chạy -->
-                    <input type="text" class="form-control form-control-lg" id="inputHash" placeholder="Chuột phải -> Dán (Paste) vào đây..." onpaste="handlePaste(event)" autocomplete="off">
+                    <label for="inputHash" class="form-label fw-bold">Dán hoặc gõ mã MD5 vào đây để xem kết quả:</label>
+                    <!-- Sử dụng oninput để nhận diện mọi hành động dán/nhập ngay lập tức -->
+                    <input type="text" class="form-control form-control-lg" id="inputHash" placeholder="Dán (Ctrl + V) hoặc nhập mã vào đây..." oninput="checkAndProcess(this.value)" autocomplete="off">
                 </div>
-                <small class="text-muted text-start">Hệ thống tự động xử lý ngay khi bạn vừa dán mã xong.</small>
+                <small class="text-muted text-start">Hệ thống tự động xử lý và hiện kết quả ngay lập tức.</small>
             </div>
 
-            <!-- Khối hiển thị kết quả (Chỉ hiển thị bảng tính toán và xúc xắc) -->
+            <!-- Khối hiển thị kết quả (Ẩn hoàn toàn mã MD5 gốc) -->
             <div id="resultBox" class="card p-4 bg-white text-start result-box">
                 <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
                     <h4 class="text-success m-0">Kết Quả Phân Tích Xúc Xắc</h4>
-                    <!-- Nút bấm để quay lại nhập mã khác nếu cần -->
                     <button class="btn btn-outline-secondary btn-sm" onclick="resetForm()">Nhập mã khác</button>
                 </div>
                 
@@ -68,30 +65,23 @@
     </div>
 </div>
 
-<!-- Nhúng thư viện Crypto JS để tính toán mã hóa an toàn phòng trường hợp chuỗi dán vào là text thường -->
 <script src="https://cloudflare.com"></script>
 <script>
-function handlePaste(event) {
-    // Lấy dữ liệu từ clipboard ngay khi người dùng dán vào
-    let pastedData = (event.clipboardData || window.clipboardData).getData('text');
-    if (pastedData) {
-        // Chờ 50ms để dữ liệu ổn định rồi xử lý dữ liệu
-        setTimeout(() => {
-            processMD5(pastedData.trim().toLowerCase());
-        }, 50);
+function checkAndProcess(val) {
+    let input = val.trim().toLowerCase();
+    // Khi phát hiện có ký tự được nhập/dán vào, kích hoạt xử lý ngay
+    if (input.length > 0) {
+        processMD5(input);
     }
 }
 
 function processMD5(input) {
-    if (!input) return;
-
     let md5String = input;
-    // Nếu chuỗi dán vào không phải cấu trúc chuẩn MD5 (32 ký tự hệ 16), tự động hash nó thành MD5
+    // Tự động băm sang MD5 nếu chuỗi nhập vào là chuỗi thường
     if (input.length !== 32 || !/^[0-9a-f]{32}\$/.test(input)) {
         md5String = CryptoJS.MD5(input).toString();
     }
 
-    // Cắt 3 phần cố định (mỗi phần 10 ký tự)
     let p1 = md5String.substring(0, 10);
     let p2 = md5String.substring(10, 20);
     let p3 = md5String.substring(20, 30);
@@ -110,35 +100,36 @@ function processMD5(input) {
                 <td>Phần ${index + 1}</td>
                 <td class="font-monospace text-primary">${hexPart}</td>
                 <td class="small text-truncate" style="max-width: 200px;">${decValue.toString()}</td>
-                <td>${decValue.toString().slice(-4)} % 6 + 1</td>
+                <td>...${decValue.toString().slice(-4)} % 6 + 1</td>
                 <td class="fw-bold text-danger fs-5">${finalNum}</td>
             </tr>
         `;
     });
 
-    // Cập nhật dữ liệu vào bảng
+    // Cập nhật bảng dữ liệu
     document.getElementById('tableBody').innerHTML = html;
 
-    // Hiển thị các viên xúc xắc
+    // Sửa lỗi hiển thị: Chỉ định đúng phần tử trong mảng kết quả
     document.getElementById('dice1').innerText = results[0];
     document.getElementById('dice2').innerText = results[1];
     document.getElementById('dice3').innerText = results[2];
 
-    // Tính tổng điểm
-    document.getElementById('totalScore').innerText = results[0] + results[1] + results[2];
+    // Tính tổng điểm chính xác
+    let total = results[0] + results[1] + results[2];
+    document.getElementById('totalScore').innerText = total;
 
-    // ẨN khối nhập liệu và hiển thị khối kết quả
+    // Ẩn khối nhập liệu và hiển thị kết quả
     document.getElementById('inputCard').style.display = 'none';
     document.getElementById('resultBox').style.display = 'block';
     
-    // Xóa nội dung trong ô input cũ để bảo mật
+    // Xóa trắng ô nhập liệu để ẩn hoàn toàn mã MD5 vừa dán
     document.getElementById('inputHash').value = '';
 }
 
 function resetForm() {
-    // Hiển thị lại ô nhập dữ liệu ban đầu
     document.getElementById('inputCard').style.display = 'block';
     document.getElementById('resultBox').style.display = 'none';
+    document.getElementById('inputHash').value = '';
     document.getElementById('inputHash').focus();
 }
 </script>
