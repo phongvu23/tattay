@@ -111,8 +111,8 @@
             >
 
             <div class="form-text mt-2" id="inputHelp">
-              Mã MD5 đủ 32 ký tự hex sẽ được xử lý tự động sau khi dán.
-              Với chuỗi thường, nhấn Enter hoặc nút bên dưới.
+              Dán MD5 đủ 32 ký tự hex để tự động xử lý.
+              Với chuỗi thường, nhấn Enter hoặc nút phân tích.
             </div>
 
             <div
@@ -159,10 +159,10 @@
               <thead class="table-light">
                 <tr>
                   <th>Phần</th>
-                  <th>Hex</th>
+                  <th>2 ký tự hex</th>
                   <th>Thập phân</th>
                   <th>Phép tính</th>
-                  <th>Kết quả</th>
+                  <th>Xúc xắc</th>
                 </tr>
               </thead>
               <tbody id="tableBody"></tbody>
@@ -188,13 +188,13 @@
         </section>
 
         <p class="text-center text-muted small mt-4">
-          Công cụ tính toán cục bộ trên trình duyệt.
+          Công cụ tính toán trực tiếp trên trình duyệt.
         </p>
       </div>
     </div>
   </main>
 
-  <!-- CryptoJS dùng để băm chuỗi thường thành MD5 -->
+  <!-- Thư viện MD5 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 
   <script>
@@ -211,12 +211,12 @@
     let autoProcessTimer = null;
     let isProcessing = false;
 
-    // MD5 chuẩn gồm đúng 32 ký tự hexadecimal.
+    // Kiểm tra MD5 hợp lệ: đúng 32 ký tự hex.
     function isValidMD5(value) {
       return /^[0-9a-f]{32}$/i.test(value);
     }
 
-    // Nhận diện MD5 tự động, tránh xử lý khi mã còn đang được nhập.
+    // Tự động xử lý khi dán hoặc nhập đủ MD5.
     inputHash.addEventListener("input", function () {
       clearTimeout(autoProcessTimer);
 
@@ -229,23 +229,23 @@
 
       if (isValidMD5(value)) {
         inputStatus.className = "small mt-2 text-success";
-        inputStatus.textContent = "Đã nhận diện MD5. Đang chuẩn bị xử lý...";
+        inputStatus.textContent = "Đã nhận diện MD5, đang xử lý...";
 
-        // Một khoảng chờ ngắn giúp việc dán/nhập ổn định.
         autoProcessTimer = setTimeout(() => {
-          if (isValidMD5(inputHash.value.trim())) {
-            processMD5(inputHash.value.trim().toLowerCase(), "md5");
+          const currentValue = inputHash.value.trim();
+
+          if (isValidMD5(currentValue)) {
+            processMD5(currentValue.toLowerCase(), "md5");
           }
         }, 180);
       } else {
         inputStatus.className = "small mt-2 text-muted";
         inputStatus.textContent =
-          "Đang chờ đủ 32 ký tự MD5 hoặc nhấn Enter để băm chuỗi thường.";
+          "Nhập đủ 32 ký tự MD5 hoặc nhấn Enter để băm chuỗi thường.";
       }
     });
 
-    // Enter hoặc nút xử lý: MD5 hợp lệ được dùng trực tiếp;
-    // chuỗi thường sẽ được băm thành MD5.
+    // Xử lý khi nhấn Enter hoặc nút Phân tích mã.
     document.getElementById("md5Form").addEventListener("submit", function (event) {
       event.preventDefault();
       clearTimeout(autoProcessTimer);
@@ -261,28 +261,30 @@
 
       if (isValidMD5(value)) {
         processMD5(value.toLowerCase(), "md5");
-      } else {
-        if (typeof CryptoJS === "undefined") {
-          inputStatus.className = "small mt-2 text-danger";
-          inputStatus.textContent =
-            "Không tải được thư viện MD5. Vui lòng kiểm tra kết nối mạng.";
-          return;
-        }
-
-        const hash = CryptoJS.MD5(value).toString();
-        processMD5(hash, "text");
+        return;
       }
+
+      if (typeof CryptoJS === "undefined") {
+        inputStatus.className = "small mt-2 text-danger";
+        inputStatus.textContent =
+          "Không tải được thư viện MD5. Vui lòng kiểm tra kết nối mạng.";
+        return;
+      }
+
+      const hash = CryptoJS.MD5(value).toString();
+      processMD5(hash, "text");
     });
 
     function processMD5(md5String, sourceType) {
-      if (isProcessing || !isValidMD5(md5String)) return;
+      if (isProcessing || !isValidMD5(md5String)) {
+        return;
+      }
 
       isProcessing = true;
       processBtn.disabled = true;
 
       try {
-        // Giữ nguyên công thức ban đầu: chia thành ba phần,
-        // mỗi phần gồm 10 ký tự hex.
+        // Chia MD5 thành ba phần, mỗi phần 10 ký tự.
         const parts = [
           md5String.substring(0, 10),
           md5String.substring(10, 20),
@@ -293,8 +295,14 @@
         const rows = [];
 
         parts.forEach((hexPart, index) => {
-          const decimalValue = BigInt("0x" + hexPart);
-          const diceValue = Number((decimalValue % 6n) + 1n);
+          // Chỉ lấy 2 ký tự hex cuối của từng phần.
+          const lastTwoHex = hexPart.slice(-2);
+
+          // Chuyển 2 ký tự hex sang thập phân.
+          const decimalValue = parseInt(lastTwoHex, 16);
+
+          // Công thức xúc xắc: giá trị % 6 + 1.
+          const diceValue = (decimalValue % 6) + 1;
 
           results.push(diceValue);
 
@@ -302,9 +310,9 @@
 
           const values = [
             "Phần " + (index + 1),
-            hexPart,
-            decimalValue.toString(),
-            decimalValue.toString() + " % 6 + 1",
+            lastTwoHex,
+            String(decimalValue),
+            decimalValue + " % 6 + 1",
             String(diceValue)
           ];
 
@@ -313,7 +321,7 @@
             cell.textContent = value;
 
             if (columnIndex === 1) {
-              cell.className = "font-monospace text-primary";
+              cell.className = "font-monospace text-primary fw-bold";
             }
 
             if (columnIndex === 4) {
@@ -326,28 +334,30 @@
           rows.push(row);
         });
 
-        // Cập nhật kết quả.
+        // Cập nhật bảng kết quả.
         tableBody.replaceChildren(...rows);
 
+        // Hiển thị ba số xúc xắc.
         document.getElementById("dice1").textContent = results[0];
         document.getElementById("dice2").textContent = results[1];
         document.getElementById("dice3").textContent = results[2];
 
+        // Tính tổng điểm.
         const total = results.reduce((sum, value) => sum + value, 0);
         document.getElementById("totalScore").textContent = total;
 
         resultNote.textContent = sourceType === "text"
           ? "Kết quả được tính từ MD5 của chuỗi đã nhập."
-          : "Kết quả được tính trực tiếp từ mã MD5 đã nhập.";
+          : "Kết quả được tính trực tiếp từ MD5 đã nhập.";
 
-        // Ẩn vùng nhập sau khi đã có kết quả.
+        // Ẩn khu vực nhập và hiện kết quả.
         inputCard.style.display = "none";
         resultBox.style.display = "block";
 
-        // Xóa mã đầu vào khỏi ô nhập.
+        // Xóa mã gốc khỏi ô nhập.
         inputHash.value = "";
 
-        // Hiệu ứng nhẹ cho ba xúc xắc.
+        // Hiệu ứng xúc xắc.
         ["dice1", "dice2", "dice3"].forEach((id) => {
           const dice = document.getElementById(id);
           dice.classList.remove("animate");
@@ -355,23 +365,21 @@
           dice.classList.add("animate");
         });
 
-        // Đưa kết quả vào tầm nhìn trên màn hình nhỏ.
         resultBox.scrollIntoView({
           behavior: "smooth",
           block: "start"
         });
       } catch (error) {
         inputStatus.className = "small mt-2 text-danger";
-        inputStatus.textContent =
-          "Không thể xử lý dữ liệu. Vui lòng kiểm tra mã đầu vào.";
-        console.error("MD5 processing error:", error);
+        inputStatus.textContent = "Không thể xử lý dữ liệu đầu vào.";
+        console.error("Lỗi xử lý MD5:", error);
       } finally {
         isProcessing = false;
         processBtn.disabled = false;
       }
     }
 
-    // Đưa công cụ về trạng thái ban đầu.
+    // Nhập mã khác.
     document.getElementById("resetBtn").addEventListener("click", function () {
       clearTimeout(autoProcessTimer);
 
