@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -47,7 +46,6 @@
       box-shadow: 0 4px 10px rgba(220, 53, 69, .2);
     }
 
-    /* Viền vàng cho xúc xắc 7, 8, 9 */
     .dice.highlight {
       border: 4px solid #ffc107;
       box-shadow: 0 0 12px rgba(255, 193, 7, .65);
@@ -105,7 +103,8 @@
       </h2>
 
       <!-- KHU VỰC NHẬN MÃ -->
-      <section class="card main-card p-3 p-md-4 mb-4" id="inputCard">
+      <section class="card main-card p-3 p-md-4 mb-4"
+               id="inputCard">
         <form id="md5Form">
           <label for="inputHash" class="form-label fw-semibold">
             Mã MD5 hoặc chuỗi cần xử lý
@@ -155,10 +154,9 @@
       </section>
 
       <!-- KHU VỰC KẾT QUẢ -->
-      <section
-        class="card main-card p-3 p-md-4 result-box"
-        id="resultBox"
-      >
+      <section class="card main-card p-3 p-md-4 result-box"
+               id="resultBox">
+
         <div class="d-flex flex-wrap justify-content-between
                     align-items-center gap-2 border-bottom pb-3 mb-3">
           <h4 class="text-success mb-0">Kết quả phân tích</h4>
@@ -217,22 +215,28 @@
             </div>
           </div>
 
-          <p class="text-muted small mt-3 mb-0" id="resultNote"></p>
+          <p class="text-muted small mt-3 mb-0"
+             id="resultNote"></p>
         </div>
       </section>
 
       <p class="text-center text-muted small mt-4">
         Công cụ tính toán trên trình duyệt.
       </p>
+
     </div>
   </div>
 </main>
 
+<!-- Thư viện tạo MD5 từ chuỗi thông thường -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 
 <script>
 "use strict";
 
+// ================================
+// KHAI BÁO PHẦN TỬ
+// ================================
 const inputCard = document.getElementById("inputCard");
 const inputHash = document.getElementById("inputHash");
 const inputStatus = document.getElementById("inputStatus");
@@ -244,12 +248,16 @@ const diceContainer = document.getElementById("diceContainer");
 const totalScore = document.getElementById("totalScore");
 const sumFormula = document.getElementById("sumFormula");
 const resultNote = document.getElementById("resultNote");
+const md5Form = document.getElementById("md5Form");
+const resetBtn = document.getElementById("resetBtn");
 
 let autoProcessTimer = null;
 let currentMD5 = null;
 let currentSourceType = "md5";
-let lastProcessedMD5 = null;
 
+// ================================
+// KIỂM TRA MD5
+// ================================
 function isValidMD5(value) {
   return /^[0-9a-f]{32}$/i.test(value);
 }
@@ -259,24 +267,28 @@ function setStatus(message, type = "muted") {
   inputStatus.textContent = message;
 }
 
-// Nhận MD5 hoặc chuỗi thường và xử lý ngay.
-function handleInput(value, source = "manual") {
-  value = String(value || "").trim();
+// ================================
+// XỬ LÝ DỮ LIỆU ĐẦU VÀO
+// ================================
+function handleInput(value, source = "submit") {
+  value = String(value ?? "").trim();
 
   if (!value) {
-    setStatus("Clipboard không có dữ liệu.");
+    setStatus("Vui lòng nhập mã MD5 hoặc chuỗi cần xử lý.", "warning");
+    inputHash.focus();
     return;
   }
 
-  // Chỉ nhận dạng MD5 khi toàn bộ chuỗi là 32 ký tự hex.
+  // Nếu là MD5 hợp lệ thì dùng trực tiếp.
   if (isValidMD5(value)) {
-    processMD5(value.toLowerCase(), source === "clipboard"
-      ? "clipboard"
-      : "md5");
+    processMD5(
+      value.toLowerCase(),
+      source === "clipboard" ? "clipboard" : "md5"
+    );
     return;
   }
 
-  // Chuỗi thường chỉ được băm khi người dùng gửi form.
+  // Chuỗi thường chỉ được băm khi nhấn nút hoặc Enter.
   if (source === "submit") {
     if (typeof CryptoJS === "undefined") {
       setStatus(
@@ -286,8 +298,14 @@ function handleInput(value, source = "manual") {
       return;
     }
 
-    const hash = CryptoJS.MD5(value).toString();
-    processMD5(hash, "text");
+    try {
+      const hash = CryptoJS.MD5(value).toString();
+      processMD5(hash, "text");
+    } catch (error) {
+      console.error(error);
+      setStatus("Không thể tạo mã MD5 từ chuỗi này.", "danger");
+    }
+
     return;
   }
 
@@ -297,7 +315,9 @@ function handleInput(value, source = "manual") {
   );
 }
 
-// Tự xử lý khi dán vào ô nhập.
+// ================================
+// TỰ NHẬN DIỆN MD5 KHI NHẬP HOẶC DÁN
+// ================================
 inputHash.addEventListener("input", function () {
   clearTimeout(autoProcessTimer);
 
@@ -311,22 +331,35 @@ inputHash.addEventListener("input", function () {
   if (isValidMD5(value)) {
     setStatus("Đã nhận diện MD5, đang xử lý...", "success");
 
-    autoProcessTimer = setTimeout(() => {
+    autoProcessTimer = setTimeout(function () {
       const latestValue = inputHash.value.trim();
 
-      if (isValidMD5(latestValue)) {
+      // Chỉ xử lý nếu giá trị hiện tại vẫn là MD5 hợp lệ.
+      if (
+        latestValue === value &&
+        isValidMD5(latestValue)
+      ) {
         processMD5(latestValue.toLowerCase(), "md5");
       }
     }, 150);
+  } else {
+    setStatus(
+      "Nhập MD5 32 ký tự hex hoặc nhấn Phân tích mã để xử lý chuỗi.",
+      "muted"
+    );
   }
 });
 
-// Đọc clipboard bằng thao tác bấm nút của người dùng.
+// ================================
+// ĐỌC CLIPBOARD KHI BẤM NÚT
+// ================================
 async function readClipboard() {
   try {
-    if (!navigator.clipboard ||
-        typeof navigator.clipboard.readText !== "function") {
-      throw new Error("unsupported");
+    if (
+      !navigator.clipboard ||
+      typeof navigator.clipboard.readText !== "function"
+    ) {
+      throw new Error("Clipboard API không được hỗ trợ.");
     }
 
     const text = await navigator.clipboard.readText();
@@ -343,14 +376,16 @@ async function readClipboard() {
       processMD5(value.toLowerCase(), "clipboard");
     } else {
       setStatus(
-        "Đã đọc clipboard nhưng nội dung không phải MD5 32 ký tự hex.",
+        "Clipboard đã được đọc nhưng nội dung không phải MD5 hợp lệ.",
         "warning"
       );
     }
   } catch (error) {
+    console.error("Lỗi clipboard:", error);
+
     setStatus(
-      "Không đọc được clipboard. Hãy cấp quyền clipboard, " +
-      "mở trang bằng HTTPS hoặc localhost, rồi thử lại.",
+      "Không đọc được clipboard. Hãy cấp quyền truy cập và mở trang " +
+      "bằng HTTPS hoặc localhost. Bạn cũng có thể dán mã trực tiếp.",
       "danger"
     );
   }
@@ -358,51 +393,46 @@ async function readClipboard() {
 
 readClipboardBtn.addEventListener("click", readClipboard);
 
-// Tự thử đọc khi quay lại tab.
-// Trình duyệt có thể yêu cầu quyền hoặc từ chối thao tác này.
-document.addEventListener("visibilitychange", function () {
-  if (!document.hidden && resultBox.style.display !== "block") {
-    readClipboard();
-  }
-});
-
-// Nhận mã khi người dùng dán vào trang.
+// ================================
+// XỬ LÝ SỰ KIỆN DÁN NGOÀI Ô NHẬP
+// Tránh xử lý hai lần khi dán vào chính ô nhập.
+// ================================
 document.addEventListener("paste", function (event) {
-  const pastedText = event.clipboardData?.getData("text")?.trim();
+  if (event.target === inputHash) {
+    return;
+  }
 
-  if (pastedText && isValidMD5(pastedText)) {
+  const pastedText =
+    event.clipboardData?.getData("text")?.trim() || "";
+
+  if (isValidMD5(pastedText)) {
+    clearTimeout(autoProcessTimer);
     inputHash.value = pastedText;
     processMD5(pastedText.toLowerCase(), "clipboard");
   }
 });
 
-// Nhấn Enter hoặc nút phân tích để xử lý chuỗi thường.
-document.getElementById("md5Form").addEventListener("submit", function (event) {
+// ================================
+// SUBMIT FORM: MD5 HOẶC CHUỖI THƯỜNG
+// ================================
+md5Form.addEventListener("submit", function (event) {
   event.preventDefault();
   clearTimeout(autoProcessTimer);
-
   handleInput(inputHash.value, "submit");
 });
 
-// Phân tích MD5 thành đúng 16 phần.
+// ================================
+// XỬ LÝ MD5
+// ================================
 function processMD5(md5String, sourceType) {
   if (!isValidMD5(md5String)) {
     setStatus("Mã MD5 không hợp lệ.", "danger");
     return;
   }
 
-  // Không render lại cùng một mã nhiều lần liên tiếp.
-  if (
-    md5String === lastProcessedMD5 &&
-    resultBox.style.display === "block"
-  ) {
-    return;
-  }
-
   try {
-    currentMD5 = md5String;
+    currentMD5 = md5String.toLowerCase();
     currentSourceType = sourceType;
-    lastProcessedMD5 = md5String;
 
     renderResults();
 
@@ -415,16 +445,21 @@ function processMD5(md5String, sourceType) {
     });
   } catch (error) {
     console.error("Lỗi xử lý MD5:", error);
-    setStatus("Không thể xử lý dữ liệu.", "danger");
+    setStatus("Không thể xử lý dữ liệu. Vui lòng thử lại.", "danger");
   }
 }
 
-// Hiển thị 16 phần; tổng chỉ tính phần 7, 8, 9.
+// ================================
+// HIỂN THỊ 16 PHẦN VÀ 16 XÚC XẮC
+// ================================
 function renderResults() {
-  if (!currentMD5) return;
+  if (!currentMD5 || !isValidMD5(currentMD5)) {
+    throw new Error("MD5 không hợp lệ.");
+  }
 
   const rows = [];
   const diceValues = [];
+  const diceElements = [];
 
   for (let i = 0; i < 16; i++) {
     const hexPart = currentMD5.substring(i * 2, i * 2 + 2);
@@ -433,6 +468,7 @@ function renderResults() {
 
     diceValues.push(diceValue);
 
+    // Tạo dòng bảng.
     const row = document.createElement("tr");
     const isHighlighted = i >= 6 && i <= 8;
 
@@ -448,12 +484,16 @@ function renderResults() {
       String(diceValue)
     ];
 
-    values.forEach((value, columnIndex) => {
+    values.forEach(function (value, columnIndex) {
       const cell = document.createElement("td");
       cell.textContent = value;
 
       if (columnIndex === 1) {
-        cell.className = "font-monospace text-primary fw-bold";
+        cell.classList.add(
+          "font-monospace",
+          "text-primary",
+          "fw-bold"
+        );
       }
 
       if (columnIndex === 4) {
@@ -464,74 +504,78 @@ function renderResults() {
     });
 
     rows.push(row);
-  }
 
-  tableBody.replaceChildren(...rows);
-
-  // Vẽ đủ 16 viên xúc xắc.
-  const diceElements = diceValues.map((value, index) => {
+    // Tạo viên xúc xắc tương ứng.
     const dice = document.createElement("div");
 
     dice.className = "dice";
-    dice.textContent = value;
+    dice.textContent = String(diceValue);
     dice.setAttribute(
       "aria-label",
-      "Phần " + (index + 1) + ": " + value
+      "Phần " + (i + 1) + ": " + diceValue
     );
-    dice.title = "Phần " + (index + 1) + ": " + value;
+    dice.title = "Phần " + (i + 1) + ": " + diceValue;
 
-    // Index 6, 7, 8 tương ứng phần 7, 8, 9.
-    if (index >= 6 && index <= 8) {
+    if (isHighlighted) {
       dice.classList.add("highlight");
       dice.title += " — được tính vào tổng điểm";
     }
 
-    diceElements.push;
-    return dice;
-  });
+    diceElements.push(dice);
+  }
 
+  // Hiển thị bảng và xúc xắc.
+  tableBody.replaceChildren(...rows);
   diceContainer.replaceChildren(...diceElements);
 
-  // Chỉ cộng xúc xắc phần 7, 8, 9.
+  // Chỉ tính tổng phần 7, 8, 9.
   const part7 = diceValues[6];
   const part8 = diceValues[7];
   const part9 = diceValues[8];
   const total = part7 + part8 + part9;
 
-  totalScore.textContent = total;
+  totalScore.textContent = String(total);
   sumFormula.textContent =
     part7 + " + " + part8 + " + " + part9 + " = " + total;
 
-  resultNote.textContent =
-    "Đã sử dụng 16 phần của MD5." +
-    (currentSourceType === "text"
-      ? " MD5 được tạo từ chuỗi bạn nhập."
-      : currentSourceType === "clipboard"
-        ? " Mã được đọc từ clipboard."
-        : " Mã MD5 được sử dụng trực tiếp.");
+  if (currentSourceType === "text") {
+    resultNote.textContent = "MD5 được tạo từ chuỗi bạn nhập.";
+  } else if (currentSourceType === "clipboard") {
+    resultNote.textContent = "Mã được đọc từ clipboard.";
+  } else {
+    resultNote.textContent = "Mã MD5 được sử dụng trực tiếp.";
+  }
 }
 
-// Nhập mã mới.
-document.getElementById("resetBtn").addEventListener("click", function () {
+// ================================
+// NHẬP MÃ MỚI
+// ================================
+resetBtn.addEventListener("click", function () {
   clearTimeout(autoProcessTimer);
 
   currentMD5 = null;
   currentSourceType = "md5";
-  lastProcessedMD5 = null;
 
   resultBox.style.display = "none";
   inputCard.style.display = "block";
 
   inputHash.value = "";
   inputStatus.textContent = "";
+  inputStatus.className = "small mt-2";
 
   tableBody.replaceChildren();
   diceContainer.replaceChildren();
+
   totalScore.textContent = "0";
   sumFormula.textContent = "";
   resultNote.textContent = "";
 
   inputHash.focus();
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 });
 </script>
 </body>
