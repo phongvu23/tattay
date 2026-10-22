@@ -170,38 +170,43 @@
           </button>
         </div>
 
-        <div class="alert alert-info">
-          <div class="fw-semibold">Đã phân tích đủ 16 phần</div>
-          <div class="small">
-            Phần 7, 8, 9 được đánh dấu viền vàng.
-            Tổng điểm chỉ tính ba phần này.
+        <div class="alert alert-info mb-3">
+          Kết quả đã được tính từ mã MD5. .
+        </div>
+
+        <div class="d-grid mb-3">
+          <button type="button" class="btn btn-outline-primary" id="toggleDetailsBtn"
+                  aria-expanded="false" aria-controls="detailContent">
+            Xem chi tiết 16 phần
+          </button>
+        </div>
+
+        <div class="text-center mt-3">
+          <h5 class="fw-semibold">Kết quả xúc xắc </h5>
+          <div class="dice-container" id="diceContainer"></div>
+        </div>
+
+        <div id="detailContent" style="display: none;" class="mt-3">
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover
+                          text-center align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Phần</th>
+                  <th>2 ký tự hex</th>
+                  <th>Thập phân</th>
+                  <th>Công thức</th>
+                  <th>Xúc xắc</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
           </div>
         </div>
 
-        <div class="table-responsive">
-          <table class="table table-bordered table-hover
-                        text-center align-middle mb-0">
-            <thead class="table-light">
-              <tr>
-                <th>Phần</th>
-                <th>2 ký tự hex</th>
-                <th>Thập phân</th>
-                <th>Công thức</th>
-                <th>Xúc xắc</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-          </table>
-        </div>
-
-        <div class="text-center mt-4">
-          <h5 class="fw-semibold">Kết quả 16 viên xúc xắc</h5>
-
-          <div class="dice-container" id="diceContainer"></div>
-
           <div class="border rounded-3 p-3 mt-4">
             <div class="text-muted">
-              Tổng điểm phần 7 + phần 8 + phần 9
+              Tổng điểm 
             </div>
 
             <div class="my-2">
@@ -211,7 +216,7 @@
             <div id="sumFormula" class="fw-semibold"></div>
 
             <div class="small text-muted mt-2">
-              Không cộng điểm của 13 phần còn lại.
+              Không cộng điểm của phần còn lại.
             </div>
           </div>
 
@@ -250,6 +255,8 @@ const sumFormula = document.getElementById("sumFormula");
 const resultNote = document.getElementById("resultNote");
 const md5Form = document.getElementById("md5Form");
 const resetBtn = document.getElementById("resetBtn");
+const toggleDetailsBtn = document.getElementById("toggleDetailsBtn");
+const detailContent = document.getElementById("detailContent");
 
 let autoProcessTimer = null;
 let currentMD5 = null;
@@ -524,9 +531,13 @@ function renderResults() {
     diceElements.push(dice);
   }
 
-  // Hiển thị bảng và xúc xắc.
+  // Bảng chi tiết vẫn có đủ 16 phần; bên ngoài chỉ hiện xúc xắc phần 7, 8, 9.
   tableBody.replaceChildren(...rows);
-  diceContainer.replaceChildren(...diceElements);
+  diceContainer.replaceChildren(
+    diceElements[6],
+    diceElements[7],
+    diceElements[8]
+  );
 
   // Chỉ tính tổng phần 7, 8, 9.
   const part7 = diceValues[6];
@@ -548,6 +559,18 @@ function renderResults() {
 }
 
 // ================================
+// ẨN / HIỆN CHI TIẾT 16 PHẦN
+// ================================
+toggleDetailsBtn.addEventListener("click", function () {
+  const isHidden = detailContent.style.display === "none";
+  detailContent.style.display = isHidden ? "block" : "none";
+  toggleDetailsBtn.textContent = isHidden
+    ? "Ẩn chi tiết"
+    : "Xem chi tiết 16 phần";
+  toggleDetailsBtn.setAttribute("aria-expanded", String(isHidden));
+});
+
+// ================================
 // NHẬP MÃ MỚI
 // ================================
 resetBtn.addEventListener("click", function () {
@@ -558,6 +581,9 @@ resetBtn.addEventListener("click", function () {
 
   resultBox.style.display = "none";
   inputCard.style.display = "block";
+  detailContent.style.display = "none";
+  toggleDetailsBtn.textContent = "Xem chi tiết 16 phần";
+  toggleDetailsBtn.setAttribute("aria-expanded", "false");
 
   inputHash.value = "";
   inputStatus.textContent = "";
