@@ -28,20 +28,21 @@
     .dice-container {
       display: flex;
       justify-content: center;
-      gap: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
       margin: 24px 0;
     }
 
     .dice {
-      width: 68px;
-      height: 68px;
+      width: 58px;
+      height: 58px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 14px;
+      border-radius: 12px;
       background: #dc3545;
       color: white;
-      font-size: 2rem;
+      font-size: 1.7rem;
       font-weight: 800;
       box-shadow: 0 4px 10px rgba(220, 53, 69, .2);
       transition: transform .2s ease;
@@ -61,13 +62,9 @@
 
     @media (max-width: 576px) {
       .dice {
-        width: 58px;
-        height: 58px;
-        font-size: 1.7rem;
-      }
-
-      .dice-container {
-        gap: 12px;
+        width: 48px;
+        height: 48px;
+        font-size: 1.4rem;
       }
 
       .table {
@@ -80,7 +77,7 @@
 <body>
 <main class="container py-4 py-md-5">
   <div class="row justify-content-center">
-    <div class="col-12 col-lg-9">
+    <div class="col-12 col-lg-10">
 
       <h2 class="text-center text-primary fw-bold mb-4">
         Bộ Chuyển Đổi MD5 Thành Xúc Xắc 🎲
@@ -89,7 +86,6 @@
       <!-- KHU VỰC NHẬP -->
       <section class="card main-card p-3 p-md-4 mb-4" id="inputCard">
         <form id="md5Form">
-
           <label for="inputHash" class="form-label fw-semibold">
             Dán mã MD5 hoặc nhập chuỗi cần xử lý
           </label>
@@ -98,7 +94,7 @@
             type="text"
             class="form-control form-control-lg hash-input"
             id="inputHash"
-            placeholder="Dán mã MD5 tại đây..."
+            placeholder="Dán mã MD5 32 ký tự tại đây..."
             autocomplete="off"
             autocapitalize="off"
             spellcheck="false"
@@ -107,26 +103,35 @@
 
           <div class="form-text mt-2">
             MD5 đủ 32 ký tự hex sẽ được xử lý tự động.
+            Với chuỗi thường, nhấn Enter hoặc nút bên dưới.
           </div>
 
           <div class="mt-3">
-            <label for="addNumber" class="form-label fw-semibold">
-              Số cộng thêm (1–18)
+            <label for="partCount" class="form-label fw-semibold">
+              Chọn số phần muốn lấy
             </label>
 
-            <input
-              type="number"
-              class="form-control form-control-lg"
-              id="addNumber"
-              min="1"
-              max="18"
-              step="1"
-              value="1"
-              required
-            >
+            <select id="partCount" class="form-select form-select-lg">
+              <option value="1">1 phần</option>
+              <option value="2">2 phần</option>
+              <option value="3" selected>3 phần</option>
+              <option value="4">4 phần</option>
+              <option value="5">5 phần</option>
+              <option value="6">6 phần</option>
+              <option value="7">7 phần</option>
+              <option value="8">8 phần</option>
+              <option value="9">9 phần</option>
+              <option value="10">10 phần</option>
+              <option value="11">11 phần</option>
+              <option value="12">12 phần</option>
+              <option value="13">13 phần</option>
+              <option value="14">14 phần</option>
+              <option value="15">15 phần</option>
+              <option value="16">16 phần</option>
+            </select>
 
             <div class="form-text">
-              Số này sẽ được cộng vào giá trị thập phân của mỗi cặp hex.
+              Mỗi phần gồm 2 ký tự hex. Có thể chọn từ 1 đến 16 phần.
             </div>
           </div>
 
@@ -152,7 +157,6 @@
         class="card main-card p-3 p-md-4 result-box"
         id="resultBox"
       >
-
         <div class="d-flex flex-wrap justify-content-between
                     align-items-center gap-2 border-bottom pb-3 mb-3">
           <h4 class="text-success mb-0">Kết quả phân tích</h4>
@@ -166,32 +170,33 @@
           </button>
         </div>
 
-        <!-- Có thể thay đổi số cộng ngay tại màn hình kết quả -->
-        <div class="mb-4">
-          <label for="addNumberResult" class="form-label fw-semibold">
-            Số cộng thêm (1–18)
+        <div class="mb-3">
+          <label for="partCountResult" class="form-label fw-semibold">
+            Số phần muốn lấy
           </label>
 
-          <input
-            type="number"
-            class="form-control form-control-lg"
-            id="addNumberResult"
-            min="1"
-            max="18"
-            step="1"
-            value="1"
-          >
+          <select id="partCountResult" class="form-select form-select-lg">
+            <option value="1">1 phần</option>
+            <option value="2">2 phần</option>
+            <option value="3" selected>3 phần</option>
+            <option value="4">4 phần</option>
+            <option value="5">5 phần</option>
+            <option value="6">6 phần</option>
+            <option value="7">7 phần</option>
+            <option value="8">8 phần</option>
+            <option value="9">9 phần</option>
+            <option value="10">10 phần</option>
+            <option value="11">11 phần</option>
+            <option value="12">12 phần</option>
+            <option value="13">13 phần</option>
+            <option value="14">14 phần</option>
+            <option value="15">15 phần</option>
+            <option value="16">16 phần</option>
+          </select>
 
           <div class="form-text">
-            Kết quả tự động cập nhật khi bạn thay đổi số này.
+            Thay đổi lựa chọn để cập nhật kết quả ngay lập tức.
           </div>
-
-          <div
-            class="small mt-2"
-            id="resultStatus"
-            role="status"
-            aria-live="polite"
-          ></div>
         </div>
 
         <div class="table-responsive">
@@ -201,8 +206,8 @@
               <tr>
                 <th>Phần</th>
                 <th>2 ký tự hex</th>
-                <th>Giá trị hex</th>
-                <th>Sau khi cộng</th>
+                <th>Thập phân</th>
+                <th>Công thức</th>
                 <th>Xúc xắc</th>
               </tr>
             </thead>
@@ -211,13 +216,9 @@
         </div>
 
         <div class="text-center mt-4">
-          <h5 class="fw-semibold">Bộ số xúc xắc</h5>
+          <h5 class="fw-semibold">Kết quả xúc xắc</h5>
 
-          <div class="dice-container">
-            <div class="dice" id="dice1">-</div>
-            <div class="dice" id="dice2">-</div>
-            <div class="dice" id="dice3">-</div>
-          </div>
+          <div class="dice-container" id="diceContainer"></div>
 
           <h4 class="text-secondary mt-3">
             Tổng điểm:
@@ -235,7 +236,6 @@
   </div>
 </main>
 
-<!-- Thư viện MD5 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 
 <script>
@@ -243,54 +243,45 @@
 
 const inputCard = document.getElementById("inputCard");
 const inputHash = document.getElementById("inputHash");
-const addNumber = document.getElementById("addNumber");
-const addNumberResult = document.getElementById("addNumberResult");
 const inputStatus = document.getElementById("inputStatus");
-const resultStatus = document.getElementById("resultStatus");
 const processBtn = document.getElementById("processBtn");
 const resultBox = document.getElementById("resultBox");
 const tableBody = document.getElementById("tableBody");
+const diceContainer = document.getElementById("diceContainer");
+const totalScore = document.getElementById("totalScore");
 const resultNote = document.getElementById("resultNote");
+
+const partCount = document.getElementById("partCount");
+const partCountResult = document.getElementById("partCountResult");
 
 let autoProcessTimer = null;
 let isProcessing = false;
 let currentMD5 = null;
 let currentSourceType = "md5";
 
-// Kiểm tra định dạng MD5.
 function isValidMD5(value) {
   return /^[0-9a-f]{32}$/i.test(value);
 }
 
-// Kiểm tra số cộng phải là số nguyên từ 1 đến 18.
-function getAddValue(value) {
-  if (value.trim() === "") return null;
+// Đồng bộ số phần ở cả hai khu vực.
+function syncPartCount(source, target) {
+  target.value = source.value;
 
-  const number = Number(value);
-
-  if (!Number.isInteger(number) || number < 1 || number > 18) {
-    return null;
+  if (currentMD5) {
+    renderResults();
   }
-
-  return number;
 }
 
-// Đồng bộ hai ô nhập số.
-function syncAddNumber(source, target) {
-  const value = getAddValue(source.value);
+// Thay đổi số phần: tự động cập nhật kết quả.
+partCount.addEventListener("change", function () {
+  syncPartCount(partCount, partCountResult);
+});
 
-  if (value === null) {
-    source.setCustomValidity("Nhập số nguyên từ 1 đến 18.");
-    return false;
-  }
+partCountResult.addEventListener("change", function () {
+  syncPartCount(partCountResult, partCount);
+});
 
-  source.setCustomValidity("");
-  target.value = String(value);
-
-  return true;
-}
-
-// Tự động nhận MD5 sau khi dán hoặc nhập đủ 32 ký tự.
+// Tự động xử lý khi dán đủ mã MD5.
 inputHash.addEventListener("input", function () {
   clearTimeout(autoProcessTimer);
 
@@ -309,20 +300,13 @@ inputHash.addEventListener("input", function () {
       const latestValue = inputHash.value.trim();
 
       if (isValidMD5(latestValue)) {
-        if (!syncAddNumber(addNumber, addNumberResult)) {
-          inputStatus.className = "small mt-2 text-danger";
-          inputStatus.textContent = "Vui lòng nhập số từ 1 đến 18.";
-          addNumber.reportValidity();
-          return;
-        }
-
         processMD5(latestValue.toLowerCase(), "md5");
       }
     }, 180);
   } else {
     inputStatus.className = "small mt-2 text-muted";
     inputStatus.textContent =
-      "Nhập đủ 32 ký tự MD5 để tự động xử lý, hoặc nhấn nút để băm chuỗi thường.";
+      "Đang nhập mã. Dán đủ 32 ký tự MD5 hoặc nhấn Enter để xử lý chuỗi thường.";
   }
 });
 
@@ -337,11 +321,6 @@ document.getElementById("md5Form").addEventListener("submit", function (event) {
     inputStatus.className = "small mt-2 text-danger";
     inputStatus.textContent = "Vui lòng nhập mã MD5 hoặc chuỗi cần xử lý.";
     inputHash.focus();
-    return;
-  }
-
-  if (!syncAddNumber(addNumber, addNumberResult)) {
-    addNumber.reportValidity();
     return;
   }
 
@@ -361,18 +340,9 @@ document.getElementById("md5Form").addEventListener("submit", function (event) {
   processMD5(hash, "text");
 });
 
-// Xử lý MD5.
+// Tiếp nhận MD5 và hiển thị kết quả.
 function processMD5(md5String, sourceType) {
   if (isProcessing || !isValidMD5(md5String)) {
-    return;
-  }
-
-  const addValue = getAddValue(addNumberResult.value);
-
-  if (addValue === null) {
-    resultStatus.className = "small mt-2 text-danger";
-    resultStatus.textContent = "Vui lòng nhập số nguyên từ 1 đến 18.";
-    addNumberResult.reportValidity();
     return;
   }
 
@@ -383,7 +353,9 @@ function processMD5(md5String, sourceType) {
     currentMD5 = md5String;
     currentSourceType = sourceType;
 
-    renderResults(addValue);
+    partCountResult.value = partCount.value;
+
+    renderResults();
 
     inputCard.style.display = "none";
     resultBox.style.display = "block";
@@ -403,41 +375,30 @@ function processMD5(md5String, sourceType) {
   }
 }
 
-// Tính và hiển thị kết quả với số cộng được chọn.
-function renderResults(addValue) {
+// Tính lại toàn bộ kết quả theo số phần đã chọn.
+function renderResults() {
   if (!currentMD5) return;
 
-  const parts = [
-    currentMD5.substring(0, 10),
-    currentMD5.substring(10, 20),
-    currentMD5.substring(20, 30)
-  ];
-
-  const results = [];
+  const count = Number(partCountResult.value);
   const rows = [];
+  const diceValues = [];
 
-  parts.forEach((part, index) => {
-    // Lấy 2 ký tự hex cuối của từng phần.
-    const lastTwoHex = part.slice(-2);
+  for (let i = 0; i < count; i++) {
+    // Mỗi phần lấy 2 ký tự hex liên tiếp từ MD5.
+    const hexPart = currentMD5.substring(i * 2, i * 2 + 2);
 
-    // Đổi hex thành thập phân.
-    const hexValue = parseInt(lastTwoHex, 16);
+    const decimalValue = parseInt(hexPart, 16);
+    const diceValue = (decimalValue % 6) + 1;
 
-    // Cộng số người dùng nhập vào giá trị thập phân.
-    const adjustedValue = hexValue + addValue;
-
-    // Đưa kết quả về phạm vi xúc xắc 1–6.
-    const diceValue = (adjustedValue % 6) + 1;
-
-    results.push(diceValue);
+    diceValues.push(diceValue);
 
     const row = document.createElement("tr");
 
     const values = [
-      "Phần " + (index + 1),
-      lastTwoHex,
-      String(hexValue),
-      hexValue + " + " + addValue + " = " + adjustedValue,
+      "Phần " + (i + 1),
+      hexPart,
+      String(decimalValue),
+      decimalValue + " % 6 + 1",
       String(diceValue)
     ];
 
@@ -457,63 +418,35 @@ function renderResults(addValue) {
     });
 
     rows.push(row);
-  });
+  }
 
   tableBody.replaceChildren(...rows);
 
-  document.getElementById("dice1").textContent = results[0];
-  document.getElementById("dice2").textContent = results[1];
-  document.getElementById("dice3").textContent = results[2];
+  // Tạo đúng số viên xúc xắc đã chọn.
+  const diceElements = diceValues.map((value, index) => {
+    const dice = document.createElement("div");
 
-  const total = results.reduce((sum, value) => sum + value, 0);
-  document.getElementById("totalScore").textContent = total;
+    dice.className = "dice";
+    dice.textContent = value;
+    dice.setAttribute("aria-label", "Xúc xắc " + (index + 1) + ": " + value);
 
-  resultNote.textContent = currentSourceType === "text"
-    ? "Kết quả dựa trên MD5 của chuỗi đã nhập."
-    : "Kết quả dựa trực tiếp trên MD5 đã nhập.";
-
-  resultStatus.className = "small mt-2 text-success";
-  resultStatus.textContent =
-    "Đã tính lại với số cộng thêm: " + addValue + ".";
-
-  // Hiệu ứng nhẹ.
-  ["dice1", "dice2", "dice3"].forEach((id) => {
-    const dice = document.getElementById(id);
-    dice.classList.remove("animate");
-    void dice.offsetWidth;
-    dice.classList.add("animate");
+    return dice;
   });
+
+  diceContainer.replaceChildren(...diceElements);
+
+  // Tổng điểm.
+  const total = diceValues.reduce((sum, value) => sum + value, 0);
+  totalScore.textContent = total;
+
+  resultNote.textContent =
+    "Đang sử dụng " + count + " phần, mỗi phần 2 ký tự hex." +
+    (currentSourceType === "text"
+      ? " Mã được tạo từ MD5 của chuỗi đã nhập."
+      : " Mã MD5 được sử dụng trực tiếp.");
 }
 
-// Đổi số cộng trong màn hình kết quả: cập nhật ngay.
-addNumberResult.addEventListener("input", function () {
-  const valid = syncAddNumber(addNumberResult, addNumber);
-
-  if (!valid) {
-    resultStatus.className = "small mt-2 text-danger";
-    resultStatus.textContent = "Chỉ chấp nhận số nguyên từ 1 đến 18.";
-    return;
-  }
-
-  if (currentMD5) {
-    renderResults(getAddValue(addNumberResult.value));
-  }
-});
-
-// Đồng bộ khi chỉnh số ở màn hình nhập.
-addNumber.addEventListener("input", function () {
-  const valid = syncAddNumber(addNumber, addNumberResult);
-
-  if (!valid) {
-    inputStatus.className = "small mt-2 text-danger";
-    inputStatus.textContent = "Chỉ chấp nhận số nguyên từ 1 đến 18.";
-    return;
-  }
-
-  inputStatus.textContent = "";
-});
-
-// Nút nhập mã khác.
+// Nút nhập mã mới.
 document.getElementById("resetBtn").addEventListener("click", function () {
   clearTimeout(autoProcessTimer);
 
@@ -525,22 +458,14 @@ document.getElementById("resetBtn").addEventListener("click", function () {
 
   inputHash.value = "";
   inputStatus.textContent = "";
-  resultStatus.textContent = "";
+
   tableBody.replaceChildren();
-
-  addNumber.value = "1";
-  addNumberResult.value = "1";
-  addNumber.setCustomValidity("");
-  addNumberResult.setCustomValidity("");
-
-  ["dice1", "dice2", "dice3"].forEach((id) => {
-    const dice = document.getElementById(id);
-    dice.textContent = "-";
-    dice.classList.remove("animate");
-  });
-
-  document.getElementById("totalScore").textContent = "0";
+  diceContainer.replaceChildren();
+  totalScore.textContent = "0";
   resultNote.textContent = "";
+
+  partCount.value = "3";
+  partCountResult.value = "3";
 
   inputHash.focus();
 });
