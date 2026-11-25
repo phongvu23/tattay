@@ -1,183 +1,472 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f4f6f9">
-<title>Phân tích MD5 và xác suất xúc xắc</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HEX AUTO CONVERTER</title>
+
 <style>
-  :root { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #20242a; }
-  body { margin: 0; background: #f4f6f9; }
-  * { -webkit-tap-highlight-color: transparent; }
-  main { width: min(850px, 100%); box-sizing: border-box; margin: 20px auto; padding: 14px; }
-  .card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 5px 22px #17203312; margin-bottom: 16px; }
-  h1 { font-size: 1.55rem; margin-top: 0; text-align: center; color: #2459a9; }
-  h2 { font-size: 1.1rem; margin: 0 0 14px; }
-  label { display:block; font-weight: 650; margin-bottom: 8px; }
-  input { width: 100%; box-sizing: border-box; padding: 13px; border: 1px solid #ccd3dd; border-radius: 9px; font: 1rem monospace; }
-  button { border: 0; border-radius: 9px; padding: 12px 16px; cursor: pointer; font-weight: 700; font-size: .95rem; }
-  .primary { background: #2459a9; color: white; }
-  .secondary { background: #eef3fb; color: #2459a9; border: 1px solid #cbdaf3; }
-  .actions { display:flex; flex-wrap:wrap; gap:9px; margin-top: 12px; }
-  button { min-height: 46px; touch-action: manipulation; }
-  .hidden-result-note { font-size: .9rem; color: #667085; margin: 0; }
-  .muted { color: #667085; font-size: .9rem; }
-  .dice-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin: 16px 0; }
-  .die { display:flex; align-items:center; justify-content:center; width:64px; height:64px; border-radius:13px; color:white; background:#dc3545; font-size:1.8rem; font-weight:800; box-shadow:0 4px 10px #dc354533; }
-  .die.new { background:#198754; }
-  .summary { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:13px; background:#f8fafc; border-radius:10px; }
-  .total { font-size:1.5rem; font-weight:800; }
-  .status { margin-top:10px; min-height:1.2em; }
-  .error { color:#b42318; }
-  .success { color:#067647; }
-  table { width:100%; border-collapse:collapse; }
-  th, td { padding:9px; border:1px solid #dce1e8; text-align:center; }
-  th { background:#f3f5f8; }
-  tr.focus td { background:#fff1c2; font-weight:700; }
-  details { margin-top: 12px; }
-  details summary { cursor:pointer; color:#2459a9; font-weight:700; padding:10px 0; }
-  .note { background:#fff8e7; border:1px solid #f3d58a; border-radius:10px; padding:12px; line-height:1.5; }
-  @media(max-width:560px) {
-    main { margin:0 auto; padding:10px; }
-    .card { padding:14px; border-radius:13px; margin-bottom:11px; }
-    h1 { font-size:1.22rem; line-height:1.35; margin-bottom:16px; }
-    h2 { font-size:1rem; }
-    input { font-size:16px; padding:12px; }
-    .actions { display:grid; grid-template-columns:1fr; gap:8px; }
-    button { width:100%; min-height:46px; }
-    .dice-row { gap:9px; margin:13px 0; }
-    .die { width:clamp(46px, 17vw, 58px); height:clamp(46px, 17vw, 58px); font-size:1.45rem; border-radius:11px; }
-    .summary { padding:11px; }
-    .total { font-size:1.35rem; }
-    .note { font-size:.9rem; }
-    body { overflow-wrap:anywhere; }
-  }
-  @media (max-width:360px) { .card { padding:11px; } .die { width:44px; height:44px; } }
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: #101827;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  max-width: 500px;
+  margin: 30px auto;
+  padding: 25px;
+  background: #1e293b;
+  border-radius: 15px;
+  text-align: center;
+}
+
+h2 { color: #60a5fa; }
+
+.status {
+  margin: 15px 0;
+  padding: 12px;
+  background: #0f172a;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:disabled { opacity: .5; }
+
+.result {
+  margin-top: 20px;
+  padding: 20px;
+  background: #0f172a;
+  border-radius: 10px;
+}
+
+.number {
+  font-size: 32px;
+  font-weight: bold;
+  color: #4ade80;
+  letter-spacing: 3px;
+}
+
+.symbols {
+  font-size: 32px;
+  margin-top: 15px;
+  letter-spacing: 5px;
+}
+
+.pattern {
+  margin-top: 20px;
+  font-size: 30px;
+  font-weight: bold;
+  color: #facc15;
+}
+
+.success { color: #4ade80; }
+.error { color: #f87171; }
+
+.history {
+  margin-top: 25px;
+  text-align: left;
+}
+
+.history-item {
+  background: #0f172a;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 10px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.values {
+  color: #4ade80;
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+.history-symbols {
+  font-size: 23px;
+  margin: 8px 0;
+}
+
+.small {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.clear { background: #dc2626; }
 </style>
 </head>
+
 <body>
-<main>
-  <section class="card">
-    <h1>Phân tích MD5 và xác suất xúc xắc 🎲</h1>
-    <label for="md5">Mã MD5 (32 ký tự hex)</label>
-    <input id="md5" value="47c1092c206090e0721a154662e08270" maxlength="32" spellcheck="false" autocomplete="off">
-    <div class="actions">
-      <button class="primary" id="analyze">Phân tích mã</button>
-      <button class="secondary" id="randomize">Tạo bộ mới</button>
-    </div>
-    <div id="status" class="status muted" role="status">Đang đọc mã từ clipboard nếu trình duyệt cho phép…</div>
-  </section>
 
-  <!-- Kết quả cũ (phần 7, 8, 9) được ẩn hoàn toàn; chỉ dùng nội bộ để tính toán. -->
+<div class="container">
 
-  <section class="card" id="newCard">
-    <h2>Kết quả mới — 3 viên xúc xắc</h2>
-    <div class="dice-row" id="newDice"></div>
-    <div class="summary"><span>Tổng điểm mới</span><span class="total" id="newTotal">—</span></div>
-    <div id="comparison" style="margin-top:14px;line-height:1.6"></div>
-  </section>
+<h2>HEX AUTO CONVERTER</h2>
 
-  <section class="card">
-    <h2>Xác suất lý thuyết (3 xúc xắc công bằng)</h2>
-    <p>Mỗi mặt có xác suất 1/6. Có 216 bộ ba có thứ tự đồng khả năng.</p>
-    <div id="probability" class="muted">Nhập mã hợp lệ rồi bấm “Phân tích mã”.</div>
-    <div class="note" style="margin-top:14px">
-      <strong>Lưu ý:</strong> Kết quả mới được tạo ngẫu nhiên độc lập, không phải dự đoán có lợi thế đã được chứng minh. Mã MD5 không cung cấp thông tin đáng tin cậy về kết quả xúc xắc tương lai nếu không có dữ liệu lịch sử chứng minh mối liên hệ.
-    </div>
-  </section>
-</main>
+<div class="status" id="autoStatus">
+  Chưa bật đọc Clipboard
+</div>
+
+<button id="startButton">
+  BẬT TỰ ĐỘNG ĐỌC MÃ
+</button>
+
+<button id="checkButton">
+  KIỂM TRA CLIPBOARD
+</button>
+
+<div class="result" id="result">
+  <div class="number">- - - -</div>
+  <div class="symbols">🔴 ⚪ 🔴 ⚪</div>
+  <div class="pattern">ĐANG CHỜ</div>
+  <div class="small">Chờ mã HEX 32 ký tự</div>
+</div>
+
+<div class="history">
+  <h3>LỊCH SỬ KẾT QUẢ</h3>
+  <div id="history"></div>
+
+  <button class="clear" id="clearButton">
+    XÓA LỊCH SỬ
+  </button>
+</div>
+
+</div>
+
 <script>
-"use strict";
-const $ = id => document.getElementById(id);
-const isMD5 = s => /^[0-9a-f]{32}$/i.test(s.trim());
-let oldValues = null;
-let newValues = null;
 
-function md5ToDice(hash) {
-  const values = [];
-  for (let i = 0; i < 16; i++) {
-    const hex = hash.slice(i * 2, i * 2 + 2);
-    values.push({ part: i + 1, hex, decimal: parseInt(hex, 16), dice: (parseInt(hex, 16) % 6) + 1 });
+const result = document.getElementById("result");
+const autoStatus = document.getElementById("autoStatus");
+const historyBox = document.getElementById("history");
+
+const startButton = document.getElementById("startButton");
+const checkButton = document.getElementById("checkButton");
+const clearButton = document.getElementById("clearButton");
+
+const HISTORY_KEY = "hex_clipboard_history";
+
+let lastHex = "";
+let autoEnabled = false;
+
+// ==========================
+// PHÂN TÍCH HEX
+// ==========================
+
+function convert(hex) {
+
+  hex = hex.trim();
+
+  if (!/^[0-9a-fA-F]{32}$/.test(hex)) {
+    autoStatus.textContent = "Mã HEX không hợp lệ";
+    return false;
   }
-  return values;
-}
-function renderDice(target, values, isNew = false) {
-  $(target).replaceChildren(...values.map((v, i) => {
-    const die = document.createElement("div");
-    die.className = "die" + (isNew ? " new" : "");
-    die.textContent = v;
-    die.setAttribute("aria-label", `Viên ${i + 1}: ${v}`);
-    return die;
-  }));
-}
-function probabilityOfSum(sum) {
-  let count = 0;
-  for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) for (let c = 1; c <= 6; c++) {
-    if (a + b + c === sum) count++;
+
+  if (hex.toLowerCase() === lastHex.toLowerCase()) {
+    return false;
   }
-  return { count, total: 216, pct: count / 216 * 100 };
+
+  lastHex = hex;
+
+  const parts = hex.match(/.{8}/g);
+
+  // Kết quả từ 0 đến 4
+  const values = parts.map(part =>
+    parseInt(part, 16) % 5
+  );
+
+  // ==========================
+  // QUY TẮC MÀU MỚI
+  // ==========================
+
+  const symbols = values.map((value, index) => {
+
+    // Số 0:
+    // Vị trí 1 và 3 màu trắng
+    // Vị trí 2 và 4 màu đỏ
+    if (value === 0) {
+      return (index === 0 || index === 2)
+        ? "⚪"
+        : "🔴";
+    }
+
+    // Số 1 và 3 màu đỏ
+    if (value === 1 || value === 3) {
+      return "🔴";
+    }
+
+    // Số 2 và 4 màu trắng
+    return "⚪";
+
+  });
+
+  // ==========================
+  // ĐẾM MÀU
+  // ==========================
+
+  const redCount = symbols.filter(
+    s => s === "🔴"
+  ).length;
+
+  const whiteCount = symbols.filter(
+    s => s === "⚪"
+  ).length;
+
+  // ==========================
+  // PHÂN LOẠI MẪU
+  // ==========================
+
+  let pattern = "";
+
+  if (redCount === 3 && whiteCount === 1) {
+    pattern = "LẺ 3Đ-1T";
+  }
+  else if (whiteCount === 3 && redCount === 1) {
+    pattern = "LẺ 3T-1Đ";
+  }
+  else if (redCount === 2 && whiteCount === 2) {
+    pattern = "CHẴN 2Đ-2T";
+  }
+  else if (redCount === 4) {
+    pattern = "CHẴN 4Đ";
+  }
+  else if (whiteCount === 4) {
+    pattern = "CHẴN 4T";
+  }
+
+  // ==========================
+  // KIỂM TRA 4 SỐ KHÁC NHAU
+  // ==========================
+
+  const unique = new Set(values);
+
+  const status = unique.size === 4
+    ? '<div class="success">✓ 4 kết quả khác nhau</div>'
+    : '<div class="error">⚠ Có kết quả trùng nhau</div>';
+
+  // ==========================
+  // HIỂN THỊ KẾT QUẢ
+  // ==========================
+
+  result.innerHTML = `
+    <div class="number">
+      ${values.join(" - ")}
+    </div>
+
+    <div class="symbols">
+      ${symbols.join(" ")}
+    </div>
+
+    <div class="pattern">
+      ${pattern}
+    </div>
+
+    <div style="margin-top:15px">
+      ${status}
+    </div>
+
+    <div class="small" style="margin-top:10px">
+      ${hex}
+    </div>
+  `;
+
+  saveHistory(hex, values, symbols, pattern);
+
+  autoStatus.textContent = "✓ Đã nhận mã HEX mới";
+
+  return true;
 }
-function formatProbability(sum) {
-  const p = probabilityOfSum(sum);
-  return `${p.count}/216 = ${p.pct.toFixed(2)}%`;
+
+// ==========================
+// LƯU LỊCH SỬ
+// ==========================
+
+function saveHistory(hex, values, symbols, pattern) {
+
+  let history = JSON.parse(
+    localStorage.getItem(HISTORY_KEY) || "[]"
+  );
+
+  history.unshift({
+    hex: hex,
+    values: values.join(" - "),
+    symbols: symbols.join(" "),
+    pattern: pattern,
+    time: new Date().toLocaleString("vi-VN")
+  });
+
+  history = history.slice(0, 20);
+
+  localStorage.setItem(
+    HISTORY_KEY,
+    JSON.stringify(history)
+  );
+
+  showHistory();
 }
-function analyze(options = {}) {
-  const hash = $("md5").value.trim().toLowerCase();
-  if (!isMD5(hash)) {
-    $("status").textContent = "Mã không hợp lệ. Cần đúng 32 ký tự hex (0–9, a–f).";
-    $("status").className = "status error";
-    $("newCard").hidden = true;
+
+// ==========================
+// HIỂN THỊ LỊCH SỬ
+// ==========================
+
+function showHistory() {
+
+  const history = JSON.parse(
+    localStorage.getItem(HISTORY_KEY) || "[]"
+  );
+
+  historyBox.innerHTML = "";
+
+  history.forEach(item => {
+
+    const div = document.createElement("div");
+    div.className = "history-item";
+
+    const time = document.createElement("div");
+    time.className = "small";
+    time.textContent = item.time;
+
+    const values = document.createElement("div");
+    values.className = "values";
+    values.textContent = item.values;
+
+    const symbols = document.createElement("div");
+    symbols.className = "history-symbols";
+    symbols.textContent = item.symbols;
+
+    const pattern = document.createElement("div");
+    pattern.className = "pattern";
+    pattern.style.fontSize = "24px";
+    pattern.textContent = item.pattern;
+
+    const hex = document.createElement("div");
+    hex.className = "small";
+    hex.textContent = item.hex;
+
+    div.append(time, values, symbols, pattern, hex);
+
+    historyBox.appendChild(div);
+  });
+}
+
+// ==========================
+// ĐỌC CLIPBOARD
+// ==========================
+
+async function readClipboard() {
+
+  if (!navigator.clipboard ||
+      !navigator.clipboard.readText) {
+
+    autoStatus.textContent =
+      "Cần HTTPS để đọc Clipboard";
+
     return;
   }
-  const parts = md5ToDice(hash);
-  oldValues = parts.slice(6, 9).map(x => x.dice);
-  // Không hiển thị giá trị cũ hoặc chi tiết các phần 7, 8, 9.
-  const oldTotal = oldValues.reduce((a,b) => a+b, 0);
-  $("probability").innerHTML =
-    `<p>Xác suất một bộ ba cụ thể theo đúng thứ tự: <strong>1/216 = ${(100/216).toFixed(3)}%</strong>.</p>`;
-  $("status").textContent = options.fromClipboard
-    ? "Đã đọc mã MD5 từ clipboard. Kết quả cũ được ẩn."
-    : "Đã phân tích mã. Kết quả cũ được ẩn; chỉ hiển thị kết quả mới.";
-  $("status").className = "status success";
-  if (options.makeNew !== false) createNewSet();
-}
-function createNewSet() {
-  if (!oldValues) analyze();
-  if (!oldValues) return;
-  // Mỗi viên được lấy mẫu độc lập, đều trên các mặt 1–6.
-  newValues = Array.from({length:3}, () => Math.floor(Math.random() * 6) + 1);
-  renderDice("newDice", newValues, true);
-  const oldTotal = oldValues.reduce((a,b) => a+b, 0);
-  const newTotal = newValues.reduce((a,b) => a+b, 0);
-  $("newTotal").textContent = newTotal;
-  const pNew = probabilityOfSum(newTotal);
-  $("comparison").innerHTML =
-    `<p>Xác suất lý thuyết của tổng mới ${newTotal}: ${formatProbability(newTotal)}.</p>` +
-    `<p>Xác suất xuất hiện đúng bộ mới theo thứ tự: 1/216 = ${(100/216).toFixed(3)}%.</p>` +
-    `<p>Kết quả mới được tạo ngẫu nhiên độc lập; xác suất không dự đoán lần tiếp theo.</p>`;
-  $("newCard").hidden = false;
-}
-$("analyze").addEventListener("click", () => analyze({makeNew: true}));
-$("randomize").addEventListener("click", createNewSet);
-$("md5").addEventListener("keydown", e => { if (e.key === "Enter") analyze({makeNew: true}); });
 
-// Khởi động: thử đọc MD5 từ clipboard. Nếu không được phép, dùng mã đang có trong ô nhập.
-// Trình duyệt thường chỉ cho clipboard.readText trên HTTPS/localhost và có thể yêu cầu quyền.
-(async function init() {
-  let loadedFromClipboard = false;
   try {
-    if (navigator.clipboard && typeof navigator.clipboard.readText === "function") {
-      const clip = (await navigator.clipboard.readText()).trim();
-      if (isMD5(clip)) {
-        $("md5").value = clip.toLowerCase();
-        loadedFromClipboard = true;
-      }
+
+    const text = await navigator.clipboard.readText();
+
+    const matches = text.match(
+      /[0-9a-fA-F]{32}/g
+    );
+
+    if (matches && matches.length > 0) {
+      convert(matches[matches.length - 1]);
+    } else {
+      autoStatus.textContent =
+        "Đang chờ mã HEX 32 ký tự";
     }
-  } catch (_) {
-    // Clipboard bị chặn hoặc chưa cấp quyền; dùng giá trị sẵn trong ô nhập.
+
+  } catch (error) {
+
+    autoStatus.textContent =
+      "Không có quyền đọc Clipboard";
+
   }
-  analyze({fromClipboard: loadedFromClipboard, makeNew: true});
-})();
+}
+
+// ==========================
+// BẬT TỰ ĐỘNG
+// ==========================
+
+async function startAutoRead() {
+
+  if (autoEnabled) return;
+
+  await readClipboard();
+
+  autoEnabled = true;
+
+  startButton.textContent = "ĐÃ BẬT TỰ ĐỘNG";
+  startButton.disabled = true;
+
+  autoStatus.textContent =
+    "Đã bật. Copy mã rồi quay lại trang.";
+
+  setInterval(() => {
+
+    if (!document.hidden) {
+      readClipboard();
+    }
+
+  }, 1500);
+}
+
+// ==========================
+// QUAY LẠI TAB
+// ==========================
+
+document.addEventListener("visibilitychange", () => {
+
+  if (!document.hidden && autoEnabled) {
+    readClipboard();
+  }
+
+});
+
+// ==========================
+// XÓA LỊCH SỬ
+// ==========================
+
+function clearHistory() {
+
+  if (!confirm("Bạn muốn xóa lịch sử?")) return;
+
+  localStorage.removeItem(HISTORY_KEY);
+  historyBox.innerHTML = "";
+}
+
+// ==========================
+// SỰ KIỆN
+// ==========================
+
+startButton.addEventListener("click", startAutoRead);
+checkButton.addEventListener("click", readClipboard);
+clearButton.addEventListener("click", clearHistory);
+
+// KHỞI ĐỘNG
+showHistory();
+
 </script>
+
 </body>
 </html>
