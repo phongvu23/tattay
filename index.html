@@ -196,11 +196,17 @@ function convert(hex) {
   // QUY TẮC MÀU MỚI
   // ==========================
 
+  const hasZero = values.includes(0);
+
   const symbols = values.map((value, index) => {
 
-    // Số 0:
-    // Vị trí 1 và 3 màu trắng
-    // Vị trí 2 và 4 màu đỏ
+    // Khi có số 0:
+    // Vị trí 1 và 4 áp dụng màu theo quy tắc số 0
+    if (hasZero && (index === 0 || index === 3)) {
+      return index === 0 ? "⚪" : "🔴";
+    }
+
+    // Số 0 theo vị trí
     if (value === 0) {
       return (index === 0 || index === 2)
         ? "⚪"
