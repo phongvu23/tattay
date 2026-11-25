@@ -193,33 +193,50 @@ function convert(hex) {
   );
 
   // ==========================
-  // QUY TẮC MÀU MỚI
+  // QUY TẮC MÀU
   // ==========================
 
-  const hasZero = values.includes(0);
+  const zeroIndex = values.indexOf(0);
 
   const symbols = values.map((value, index) => {
 
-    // Khi có số 0:
-    // Vị trí 1 và 4 áp dụng màu theo quy tắc số 0
-    if (hasZero && (index === 0 || index === 3)) {
-      return index === 0 ? "⚪" : "🔴";
-    }
+    let color;
 
-    // Số 0 theo vị trí
+    // Màu mặc định của số 0
     if (value === 0) {
-      return (index === 0 || index === 2)
+      color = (index === 0 || index === 2)
         ? "⚪"
         : "🔴";
     }
 
     // Số 1 và 3 màu đỏ
-    if (value === 1 || value === 3) {
-      return "🔴";
+    else if (value === 1 || value === 3) {
+      color = "🔴";
     }
 
     // Số 2 và 4 màu trắng
-    return "⚪";
+    else {
+      color = "⚪";
+    }
+
+    // Nếu có số 0:
+    // Vị trí 1 và 4 lấy màu ngược với màu số 0
+    if (
+      zeroIndex !== -1 &&
+      (index === 0 || index === 3)
+    ) {
+
+      const zeroColor =
+        (zeroIndex === 0 || zeroIndex === 2)
+          ? "⚪"
+          : "🔴";
+
+      color = zeroColor === "⚪"
+        ? "🔴"
+        : "⚪";
+    }
+
+    return color;
 
   });
 
@@ -378,8 +395,10 @@ function showHistory() {
 
 async function readClipboard() {
 
-  if (!navigator.clipboard ||
-      !navigator.clipboard.readText) {
+  if (
+    !navigator.clipboard ||
+    !navigator.clipboard.readText
+  ) {
 
     autoStatus.textContent =
       "Cần HTTPS để đọc Clipboard";
